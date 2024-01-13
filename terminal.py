@@ -51,14 +51,17 @@ class CustomTerminal:
         @self.register_command('help', 'Shows this menu.')
         def show_commands():
             self.show_commands()
+        @self.register_command('exit', 'Exits the program.')
+        def exit_program():
+            exit()
 
-        @self.register_command('sum', 'Sums two numbers.')
+        """@self.register_command('sum', 'Sums two numbers.')
         def sum_numbers(a, b):
             try:
                 result = int(a) + int(b)
                 print(f"The sum of {a} and {b} is: {result}")
             except ValueError:
-                print("Invalid arguments! No numbers! >:(")
+                print("Invalid arguments! No numbers! >:(")"""
 
         while True:
             user_input = input(self.command_line_prompt)
