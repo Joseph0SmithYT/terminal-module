@@ -1,0 +1,5 @@
+setup.py
+terminal.egg-info/PKG-INFO
+terminal.egg-info/SOURCES.txt
+terminal.egg-info/dependency_links.txt
+terminal.egg-info/top_level.txt
