@@ -4,7 +4,7 @@
 
 
 # Define any package-level initialization or variables if needed
-version = "1.0.0"
+version = "1.0.1"
 
 def greet():
     print("Welcome to the Terminal Module!")
