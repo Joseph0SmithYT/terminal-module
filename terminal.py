@@ -1,5 +1,5 @@
 class Command:
-    def __init__(self, name="", custom_function=None, description="", **kwargs):
+    def __init__(self, name="", custom_function=None, description="", required=True, **kwargs):
         # Initialize Command object with provided attributes
         self.name = name
         self.description = description
@@ -10,6 +10,8 @@ class Command:
             self.arguments = self.get_function_arguments(custom_function)
         else:
             self.arguments = []
+        
+        self.required = required
 
     def get_function_arguments(self, func):
         # Extract arguments from a function's code object
@@ -59,37 +61,51 @@ class CustomTerminal:
             else:
                 # Regular word
                 combined_args.append(word)
-        print(combined_args)
         return combined_args
     def execute_command(self, input_command, argument_strings):
         # Execute the command if available
-        if input_command in self.commands:
-            command_obj = self.commands[input_command]
-            args = self.parse_arguments(argument_strings)
-            # Determine expected arguments based on the function's code object
-            if len(command_obj.function.__code__.co_varnames) == 0:
-                command_obj.perform_function()
-                return
-            if command_obj.function.__code__.co_varnames[0] == 'self':
-                expected_args = command_obj.function.__code__.co_varnames[1:]
-            else:
-                expected_args = command_obj.function.__code__.co_varnames
-
-            # Check if the correct number of arguments are provided
-            if len(args) < len(expected_args):
-                print(f"Error: '{input_command}' expects {len(expected_args)} argument(s), got {len(args)}.")
-                return
-
-            # Execute the command with the provided arguments
-            command_obj.perform_function(*args[:len(expected_args)])
-        else:
+        if not input_command in self.commands:
             print("Command not found!")
+            return
+        command_obj = self.commands[input_command]
 
-    def register_command(self, command_name, description, **kwargs):
+        args = self.parse_arguments(argument_strings)
+
+        if argument_strings == '':
+            if command_obj.required == False:
+                for i in range(command_obj.function.__code__.co_argcount):
+                    what = []
+                    what.extend([None for i in range(command_obj.function.__code__.co_argcount)])
+                command_obj.perform_function(*what)
+                return
+            else:
+                print("This command requires arguments.")
+
+        # Determine expected arguments based on the function's code object
+        if len(command_obj.function.__code__.co_varnames) == 0:
+            command_obj.perform_function()
+            return
+        if command_obj.function.__code__.co_varnames[0] == 'self':
+            expected_args = command_obj.function.__code__.co_varnames[1:]
+        else:
+            expected_args = command_obj.function.__code__.co_varnames
+
+        # Check if the correct number of arguments are provided
+        if len(args) < command_obj.function.__code__.co_argcount:
+            print(f"Error: '{input_command}' expects {len(expected_args)} argument(s), got {len(args)}.")
+            return
+
+        # Execute the command with the provided arguments
+        command_obj.perform_function(*args[:len(expected_args)])
+            
+                
+
+    def register_command(self, command_name, description, required=True, **kwargs):
         # Decorator function to register a new command
         def decorator(func):
+
             # Create a Command object and add it to the commands dictionary
-            command = Command(command_name, func, description)
+            command = Command(command_name, func, description, required)
             self.commands[command_name] = command
 
             # Optionally, you can return a wrapped function
@@ -97,7 +113,7 @@ class CustomTerminal:
                 return func(*args, **kwargs)
 
             return wrapper
-
+        
         return decorator
 
     def start(self):
