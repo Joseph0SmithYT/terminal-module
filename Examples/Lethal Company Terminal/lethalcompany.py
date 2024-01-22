@@ -45,6 +45,6 @@ def moons(moon_name):
             for moon in moons:
                 print(f"{moons[moon].name}")
         else:
-            print(f"{moons[moon_name].name}\n{moons[moon_name].description}\n")
+            print(f"{moons[moon_name].name}\n--------------------------------\n{moons[moon_name].description}\n")
 
 terminal.start()
